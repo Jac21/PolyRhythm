@@ -1,0 +1,35 @@
+extends ./layouts/default.jade
+
+block content
+    -
+        var soundsMatrix = [
+            [{key:"7", id:"kick"}, {key:"8", id:"snare"}, {key:"9", id:"droplet"}, {key:"0", id:"carSound"}],
+            [{key:"u", id:"pikaHi"}, {key:"i", id:"pikaLow"}, {key:"o", id:"kirby"}, {key:"p", id:"iphone"}],
+            [{key:"j", id:"rideBell"}, {key:"k", id:"hhClosed"}, {key:"l", id:"hhOpen"}, {key:";", id:"hhOpenShake"}],
+            [{key:"n", id:"kickRoom"}, {key:"m", id:"rim"},  {key:",", id:"rim10"}, {key:".", id:"snare10"}]
+        ];
+    .app-container.flex--col.lg-flex--row
+        .f1.flex--col
+            - var i = 1
+            each arr in soundsMatrix
+                .f1.flex--row
+                    each sound in arr
+                        .pr-button.f1.flex--col--CENTERED(data-id="#{sound.id}" data-color-id="#{i++}")
+                            div= sound.id
+                            .trans30= '[  ' + sound.key + '  ]'
+        .f1.flex--col--CENTERED
+            h1 PolyRhythm
+            span Use your keyboard / mouse / midi-input to make some noise
+            a(href="/canvas" target="_blank").mt2 Open performance canvas
+            a(href="/about").mt3 Click here for more info
+
+
+    script(src="/socket.io/socket.io.js")
+    script(type='text/javascript').
+        var socket = io();
+
+    script(src="js/third-party/sound.js")
+    script(src="js/sounds.js")
+    script(src="js/sound-controller.js")
+    script(src="js/key-input.js")
+    script(src="js/midi-input.js")

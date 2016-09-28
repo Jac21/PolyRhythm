@@ -1,0 +1,24 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:400,300);
+$base-font-size: 18px;
+
+body {
+    font-family: Roboto;
+    font-weight: 300;
+    margin: 0;
+
+    // font-size: 18px;
+    line-height: 1.7;
+}
+
+h1 {
+    font-size: 400%;
+    letter-spacing: -2px;
+    line-height: 1.02;
+}
+
+a {
+    text-decoration: none;
+    &:hover {
+        text-decoration: line-through;
+    }
+}

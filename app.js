@@ -1,98 +1,42 @@
-express = require('express');
-_ = require('underscore');
-app = express();
-http = require('http').Server(app);
-io = require('socket.io')(http);
+var express = require('express'),
+    _ = require('underscore'),
+    app = express(),
+    path = require('path'),
+    http = require('http').Server(app),
+    jade_browser = require('jade-browser'),
+    io = require('socket.io')(http);
 
-
-console.log(io.sockets.sockets);
-// _.each(io.sockets.sockets, function(s) {
-// 	console.log("Oh man a connection");
-// 	s.disconnect(true);
-// });
 
 var users = 0;
 var total_acceleration = 0;
 
-app.use(express.static(__dirname+ '/public'));
+app.use(express.static(__dirname + '/dist'));
 
-app.get('/', function(req, res)
-{
-	res.sendfile('./public/index.html');
-});
+// using Jade
+app.set('view engine', 'jade');
 
-app.get('/main', function(req, res)
-{
+// Page routes
+app.get('/', (req, res) => res.render('index.jade'));
+app.get('/about', (req, res) => res.render('about.jade'));
+app.get('/status', (req, res) => res.render('status.jade'));
+app.get('/canvas', (req, res) => res.render('canvas.jade'));
 
-});
-
-app.get('/phonemidi', function(req, res)
-{
-	res.sendfile('./public/phonemidi.html');
-});
-
-app.get('/audience', function(req, res)
-{
-	res.sendfile('./public/audience.html');
-});
-
-app.get('/acceleration', function(req, res)
-{
-	res.json({acceleration: (total_acceleration/users)});
-});
-
-setInterval(function() {
-		var accavg = total_acceleration/users || 0
-		if(!isFinite(accavg)) { accavg = 0; }
-		console.log("Average acceleration is ", accavg);
-		io.emit('acceleration_input', accavg)
-	}, 750);
-
-setInterval(function() {
-	console.log("total_acceleration is ", total_acceleration);
-	total_acceleration = 0;
-}, 750)
-
-var phone_users = [];
-io.on('connection', function(socket)
-{
-	socket.on('audience_init', function(msg)
-	{
-		users++;
-		console.log(users + " number of users");
-		phone_users.push(socket);
-	});
-
-	socket.on('audience_acceleration', function(msg)
-	{
-		total_acceleration += msg;
-	});
-
-	socket.on('audience_input', function(msg)
-	{
+// Initiate socket io
+io.on('connection',  (socket) => {
+    socket.on('keyboard-triggered', (msg) => {
 		console.log(msg);
+        io.emit('animation-triggered', msg);
 	});
 
-	socket.on('midi_input', function(msg)
-	{
-		console.log(msg);
-	});
-
-	socket.on('animation_output', function(msg)
-	{
+	socket.on('animation_output', (msg) => {
 		io.emit('animation_input', msg);
 	});
-
-	socket.on('disconnect', function() {
-		if(phone_users.indexOf(socket) !== -1) {	
-			users--;
-			console.log(users + " number of users");
-		}
-	});
 });
 
-app.set('port', (process.env.PORT || 5000));
+// Listen on port
+app.set('port', (process.env.PORT || 4000));
 
-http.listen(app.get('port'), function() {
+// Notfy port
+http.listen(app.get('port'), () => {
   console.log('Node app is running on port', app.get('port'));
 });
